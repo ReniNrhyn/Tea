@@ -33,20 +33,24 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request);
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|string|unique:users',
             'password' => 'required|string',
-            'password_confirmation' => 'required|same:password'
+            'password_confirmation' => 'required|same:password',
+            'roles' => 'required|in:admin,user,customer',
         ]);
 
         try {
             $user = new User([
                 'name'  => $request->name,
                 'email' => $request->email,
+                'roles' => $request->roles,
                 'password' =>  Hash::make($request->password),
             ]);
 
+            // dd($user)
             $user->save();
             return redirect()->route('users.index')
             ->with('success', 'User '.$user->name.' has been added successfully!');
@@ -80,6 +84,7 @@ class UserController extends Controller
             'name' => 'required|string',
             'email' => 'required|string|unique:users,email,'.$id,
             // 'password' => 'required|string',
+            'roles' => 'required|in:admin,user,customer',
             'password_confirmation' => 'nullable|same:password'
         ]);
 
@@ -88,6 +93,7 @@ class UserController extends Controller
             // dd($user->first());
             $user->name = $request->name;
             $user->email = $request->email;
+            $user->roles = $request->roles;
             if ($request->password){
                 $user->password = Hash::make($request->password);
             }
